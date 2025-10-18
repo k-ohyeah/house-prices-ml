@@ -51,8 +51,11 @@ LightGBM / XGBoost / CatBoost の3モデルを中心に構築・チューニン�
     'objective': 'regression',
     'metric': 'rmse'
 }
+```
 
-##📊 4. Validation Results
+---
+
+## 📊 4. Validation Results
 🧮 最終RMSE比較（Optuna調整後）
 
 | Model    | Validation RMSE |
@@ -63,7 +66,9 @@ LightGBM / XGBoost / CatBoost の3モデルを中心に構築・チューニン�
 ⭐ 重み付きアンサンブル（LGB:XGB:CAT = 5:3:2）
 Validation RMSE: 23,990.8
 
-##🏁 5. Kaggle Submission Results
+---
+
+## 🏁 5. Kaggle Submission Results
 | モデル構成                            | パラメータ調整      | 公開スコア (Public LB)     |
 | -------------------------------- | ------------ | --------------------- |
 | 単純3モデル平均 (初期)                    | LGBのみ調整      | **0.13110**           |
@@ -71,7 +76,9 @@ Validation RMSE: 23,990.8
 | LGB固定 + XGB/CATデフォルト（ChatGPT提案値） | 軽微調整         | 🏆 **0.13041 (Best)** |
 📈 結果として、パラメータ調整を一部緩めた構成が最も安定・高スコアとなった。
 
-##🔍 6. Insights & Discussion
+---
+
+## 🔍 6. Insights & Discussion
 ✅ 効果的だった点
 -LightGBMのOptunaチューニングにより約3%のRMSE改善
 -モデルごとの random_state 固定による再現性確保
@@ -82,7 +89,9 @@ Validation RMSE: 23,990.8
 -CatBoostはiterationsが長めで過学習傾向
 -アンサンブル3モデルの相関が高く、Stackingの導入余地あり
 
-##🚀 7. Next Steps
+---
+
+## 🚀 7. Next Steps
 | 改善施策                                | 目的          |
 | ----------------------------------- | ----------- |
 | 🔹 Optuna試行回数を100〜200に拡張            | 探索の安定化      |
@@ -91,7 +100,9 @@ Validation RMSE: 23,990.8
 | 🔹 特徴量重要度の再分析                       | ノイズ削減と特徴量選択 |
 | 🔹 RMSLE評価・log変換の再検証                | 評価軸との整合性確認  |
 
-##🧾 8. Summary
+---
+
+## 🧾 8. Summary
 | 項目       | 評価                    |
 | -------- | --------------------- |
 | 再現性      | ✅ 完全シード固定             |
