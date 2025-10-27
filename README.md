@@ -1,43 +1,56 @@
-# house-prices-ml
+# house-prices-ml  
 House Prices prediction using LightGBM, XGBoost, and CatBoost with Optuna tuning and ensemble learning.
+
+---
 
 # 🏠 Kaggle House Prices - Model Optimization Summary
 
-## 📘 Overview
-このプロジェクトは、Kaggle の "House Prices - Advanced Regression Techniques" における  
-価格予測モデルの最適化プロセスをまとめたものです。  
-LightGBM / XGBoost / CatBoost の3モデルを中心に構築・チューニングを行い、  
-最終的なスコアは **0.13041** を達成しました。
+## 📘 Overview  
+Kaggle "House Prices - Advanced Regression Techniques" における  
+価格予測モデルの最適化プロセスをまとめた記録。  
+LightGBM / XGBoost / CatBoost の3モデルを中心に構築・チューニングを実施。  
+最終スコアは **0.13041 (Public LB)** を達成。
 
 ---
 
-## ⚙️ 1. Data Preprocessing
-- 欠損値補完およびカテゴリ変数のエンコーディングを実施  
-- 特徴量は軽い正規化のみに留め、構造的特徴を保持  
-- 目的変数 `SalePrice` の log 変換も検証したが、最終的に非log版を採用  
-  - log変換は RMSEベースでは改善せず（逆変換誤差・歪度影響）
+## ⚙️ 1. Data Preprocessing  
+- 欠損値補完およびカテゴリ変数のエンコーディングを実施。  
+- 特徴量は軽い正規化のみに留め、構造的特徴を保持。  
+- 目的変数 `SalePrice` に対し log 変換を検証したが、非線形モデルでは効果が限定的であることを確認。  
+  → RMSEベースでは改善が見られず、逆変換誤差および歪度影響を考慮し非log版を採用。  
+
+💡 **気づき:**  
+目的変数の分布を正規化すれば精度が向上すると考えていたが、  
+LightGBM や XGBoost のような非線形モデルでは外れ値や歪度に対してもロバストに動作。  
+log変換が逆にスケーリングを崩す場合があることを確認。  
+前処理はモデル特性と整合した設計が重要。
 
 ---
 
-## 🧩 2. Base Models
+## 🧩 2. Base Models  
 3つのブースティング系モデルを採用。  
-それぞれ独立にOptunaによるパラメータチューニングを実施（LightGBMのみ最終調整）。
+それぞれ独立に Optuna によるパラメータチューニングを実施（LightGBM のみ最終調整）。
 
 | モデル | 主な設定 | 備考 |
 |--------|-----------|------|
-| **LightGBM** | `n_estimators=2000`, Optuna最適化済 | 最も安定 |
-| **XGBoost** | `n_estimators=5000`, Optuna最適化済 | 最高精度を記録 |
-| **CatBoost** | `iterations=3000`, Optuna最適化済 | 若干過学習傾向 |
-| **共通設定** | `random_state=42` / early_stopping=100 | 再現性確保・安定化 |
+| **LightGBM** | n_estimators=2000, Optuna最適化済 | 最も安定 |
+| **XGBoost** | n_estimators=5000, Optuna最適化済 | 最高精度を記録 |
+| **CatBoost** | iterations=3000, Optuna最適化済 | 若干過学習傾向 |
+| **共通設定** | random_state=42 / early_stopping=100 | 再現性確保・安定化 |
+
+💡 **気づき:**  
+Optuna で得られたパラメータ分布を分析することで、  
+モデルごとの安定性や探索挙動の違いを定量的に把握。  
+パラメータ探索を単なる最適化作業ではなく、**モデル理解の一環**として捉えることの有効性を確認。
 
 ---
 
-## 🔧 3. Parameter Tuning (Optuna)
-- 探索範囲を各モデルごとに設定し、RMSE最小化を目的に30試行  
-- `random_state=42`固定で結果の安定性を担保  
-- LightGBM のみ結果が明確に安定し、他2モデルは分布が広め（探索再現性あり）  
+## 🔧 3. Parameter Tuning (Optuna)  
+探索範囲を各モデルごとに設定し、RMSE最小化を目的に30試行を実施。  
+`random_state=42` を固定し、結果の安定性を担保。  
+LightGBM は結果の収束性が高く、他2モデルは分布のばらつきが確認された。  
 
-例：LightGBM 最適パラメータ抜粋
+例：LightGBM 最適パラメータ抜粋  
 ```python
 {
     'num_leaves': 66,
@@ -52,42 +65,53 @@ LightGBM / XGBoost / CatBoost の3モデルを中心に構築・チューニン�
     'metric': 'rmse'
 }
 ```
+💡 **気づき:**  
+パラメータ探索履歴を分析対象として扱うことで、
+各モデルの特性をより深く理解。
+精度向上のみを目的とせず、学習挙動の観察と再現性向上を重視。
 
 ---
 
 ## 📊 4. Validation Results
-🧮 最終RMSE比較（Optuna調整後）
+🧮**最終RMSE比較（Optuna調整後）**
 
-| Model    | Validation RMSE |
-| -------- | --------------- |
-| XGBoost  | **24,331.7**    |
-| LightGBM | 24,816.5        |
-| CatBoost | 25,761.9        |
-⭐ 重み付きアンサンブル（LGB:XGB:CAT = 5:3:2）
-Validation RMSE: 23,990.8
+Model	Validation RMSE
+XGBoost	24,331.7
+LightGBM	24,816.5
+CatBoost	25,761.9
+⭐ Weighted Ensemble (LGB:XGB:CAT = 5:3:2)	23,990.8
+
+💡 **気づき:**  
+単体モデルでは XGBoost が最も精度良好。
+加重アンサンブルによって RMSE をわずかに改善。
+大幅なスコア向上には至らなかったが、結果の安定性と一貫性を向上。
 
 ---
 
 ## 🏁 5. Kaggle Submission Results
-| モデル構成                            | パラメータ調整      | 公開スコア (Public LB)     |
-| -------------------------------- | ------------ | --------------------- |
-| 単純3モデル平均 (初期)                    | LGBのみ調整      | **0.13110**           |
-| 加重平均 (5:3:2) + XGB/CAT調整         | すべてOptuna最適化 | **0.13125**           |
-| LGB固定 + XGB/CATデフォルト（ChatGPT提案値） | 軽微調整         | 🏆 **0.13041 (Best)** |
-📈 結果として、パラメータ調整を一部緩めた構成が最も安定・高スコアとなった。
+モデル構成	パラメータ調整	公開スコア (Public LB)
+単純3モデル平均 (初期)	LGB のみ調整	0.13110
+加重平均 (5:3:2) + XGB/CAT調整	すべて Optuna 最適化	0.13125
+LGB固定 + XGB/CATデフォルト（ChatGPT提案値）	軽微調整	🏆 0.13041 (Best)
+
+📈 **パラメータ調整を一部緩和した構成が最も安定かつ高スコアを示す結果となった。**
 
 ---
 
 ## 🔍 6. Insights & Discussion
-✅ 効果的だった点
--LightGBMのOptunaチューニングにより約3%のRMSE改善
--モデルごとの random_state 固定による再現性確保
--重み付きアンサンブルによる微小だが一貫した精度向上（約0.001程度）
+✅ **効果的だった点**
+- LightGBM の Optuna チューニングにより約3%の RMSE 改善
+- モデルごとの random_state 固定による再現性確保
+- 重み付きアンサンブルによる微小だが一貫した精度向上（約0.001程度）
 
-⚠️ 改善余地
--XGBoostは学習率とmax_depthの依存関係が強く、最適化が不安定
--CatBoostはiterationsが長めで過学習傾向
--アンサンブル3モデルの相関が高く、Stackingの導入余地あり
+⚠️**改善余地**
+- XGBoost は learning_rate と max_depth の依存関係が強く、最適化が不安定
+- CatBoost は iterations が長く過学習傾向を示す
+- アンサンブル3モデル間の相関が高く、Stacking 導入による相関低減が有効と考えられる
+
+💡**補足的考察:**  
+過学習抑制と安定化のため、n_estimators、iterations、random_seed の調整を実施。
+過度なチューニングよりも、**モデル挙動の理解と安定性確保を優先**する姿勢を維持。
 
 ---
 
@@ -102,7 +126,15 @@ Validation RMSE: 23,990.8
 
 ---
 
-## 🧾 8. Summary
+## 💬 8. 取り組み方
+全体の進行は ChatGPT および GitHub Copilot の提案を参考としつつ、
+各工程（前処理・特徴量設計・パラメータ調整）を自ら再現・検証。
+提案コードをそのまま適用せず、「なぜそうなるのか」を検証しながら理解を深めた。
+自動化支援を補助的手段とし、**自律的な検証プロセス**を重視。
+
+---
+
+## 🧾 9. Summary
 | 項目       | 評価                    |
 | -------- | --------------------- |
 | 再現性      | ✅ 完全シード固定             |
@@ -110,3 +142,9 @@ Validation RMSE: 23,990.8
 | チューニング品質 | ✅ Optuna導入済           |
 | アンサンブル効果 | ⭕ 軽度改善（~0.001）        |
 | 総合スコア    | 🏆 **0.13041 (Best)** |
+
+---
+
+# 💡 最終考察
+本プロジェクトでは、モデル精度向上に加え、学習過程の再現性・安定性・理解度の深化を重視。
+試行と検証を通じて、**定量的根拠に基づいた分析思考と論理的な検証プロセス**を確立。
