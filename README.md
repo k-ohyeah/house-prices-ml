@@ -5,11 +5,12 @@ House Prices prediction using LightGBM, XGBoost, and CatBoost with Optuna tuning
 
 # 🏠 Kaggle House Prices - Model Optimization Summary
 
-## 📘 Overview  
-Kaggle "House Prices - Advanced Regression Techniques" における  
-価格予測モデルの最適化プロセスをまとめた記録。  
-LightGBM / XGBoost / CatBoost の3モデルを中心に構築・チューニングを実施。  
-最終スコアは **0.13041 (Public LB)** を達成。
+## 🧭 Key Insights (Conclusion First)
+住宅価格予測を題材に、機械学習モデルの比較・最適化を通じてデータ分析の本質を探究。  
+LightGBM・XGBoost・CatBoost の特性を体系的に比較し、精度と再現性のバランスを重視。  
+分析過程では、仮説立案→前処理→検証→改善のプロセスを繰り返し、  
+データサイエンスにおける「定量的根拠に基づく意思決定」の重要性を実践的に学んだ。  
+最終的に **RMSE 0.13041 (Public LB)** を達成し、安定したモデル運用の基礎を確立。
 
 ---
 
@@ -75,11 +76,12 @@ LightGBM は結果の収束性が高く、他2モデルは分布のばらつき�
 ## 📊 4. Validation Results
 🧮**最終RMSE比較（Optuna調整後）**
 
-Model	Validation RMSE
-XGBoost	24,331.7
-LightGBM	24,816.5
-CatBoost	25,761.9
-⭐ Weighted Ensemble (LGB:XGB:CAT = 5:3:2)	23,990.8
+| Model                                         | Validation RMSE |
+| --------------------------------------------- | --------------- |
+| **XGBoost**                                   | **24,331.7**    |
+| **LightGBM**                                  | 24,816.5        |
+| **CatBoost**                                  | 25,761.9        |
+| ⭐ **Weighted Ensemble (LGB:XGB:CAT = 5:3:2)** | **23,990.8**    |
 
 💡 **気づき:**  
 単体モデルでは XGBoost が最も精度良好。
@@ -89,10 +91,12 @@ CatBoost	25,761.9
 ---
 
 ## 🏁 5. Kaggle Submission Results
-モデル構成	パラメータ調整	公開スコア (Public LB)
-単純3モデル平均 (初期)	LGB のみ調整	0.13110
-加重平均 (5:3:2) + XGB/CAT調整	すべて Optuna 最適化	0.13125
-LGB固定 + XGB/CATデフォルト（ChatGPT提案値）	軽微調整	🏆 0.13041 (Best)
+| モデル構成                            | パラメータ調整        | 公開スコア (Public LB)     |
+| -------------------------------- | -------------- | --------------------- |
+| 単純3モデル平均 (初期)                    | LGB のみ調整       | 0.13110               |
+| 加重平均 (5:3:2) + XGB/CAT調整         | すべて Optuna 最適化 | 0.13125               |
+| LGB固定 + XGB/CATデフォルト（ChatGPT提案値） | 軽微調整           | 🏆 **0.13041 (Best)** |
+
 
 📈 **パラメータ調整を一部緩和した構成が最も安定かつ高スコアを示す結果となった。**
 
@@ -126,7 +130,7 @@ LGB固定 + XGB/CATデフォルト（ChatGPT提案値）	軽微調整	🏆 0.130
 
 ---
 
-## 💬 8. 取り組み方
+## 💬 8. Approach
 全体の進行は ChatGPT および GitHub Copilot の提案を参考としつつ、
 各工程（前処理・特徴量設計・パラメータ調整）を自ら再現・検証。
 提案コードをそのまま適用せず、「なぜそうなるのか」を検証しながら理解を深めた。
