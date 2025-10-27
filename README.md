@@ -1,6 +1,11 @@
 # house-prices-ml  
 House Prices prediction using LightGBM, XGBoost, and CatBoost with Optuna tuning and ensemble learning.
 
+- **Learning and Submission data**
+  - **Last submission data**(https://github.com/k-ohyeah/house-prices-ml/blob/main/house-prices-submission-updated-fixed.ipynb)
+  - **Best score submission data**(https://github.com/k-ohyeah/house-prices-ml/blob/main/house-prices-submission-updated.ipynb)  
+    ※重みづけは要調整必要(LGB:XGB:CAT = 5:3:2)
+  
 ---
 
 # 🏠 Kaggle House Prices - Model Optimization Summary
